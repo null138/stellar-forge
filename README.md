@@ -4,7 +4,7 @@
 ***Author***: **Madness (null138)** | [Steam Profile](http://steamcommunity.com/profiles/76561198098349799) | [Discord Server](https://discord.gg/SHW82GMrV4)
 
 # stellar-forge
-Stellar Forge lets you instantly generate and customize beautiful space-themed visuals, from vibrant nebulae to deep cosmic color blends, and export them as PNG images for use as backgrounds, artwork, or game assets (for example, skyboxes). You can also turn the final image into a skybox using this tool: https://github.com/null138/se-skybox-generator
+Stellar Forge lets you instantly generate and customize beautiful space-themed visuals, from vibrant nebula to deep cosmic color blends, and export them as PNG images for use as backgrounds, artwork, or game assets (for example, skyboxes). You can also turn the final image into a skybox using this tool: https://github.com/null138/se-skybox-generator
 
 <img src="preview.png" alt="preview" width="1100">
 
