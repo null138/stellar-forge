@@ -9,9 +9,10 @@ Stellar Forge lets you instantly generate and customize beautiful space-themed v
 <img src="preview.png" alt="preview" width="1100">
 
 # Features
-- Customizable stars, density, brightness, nebula effects, and color schemes, with support for exporting images in all resolutions.
-- Seed-based generation for every part of the image. Every result is random.
-- Fully adjustable parameters, allowing each setting to be modified separately and applied instantly to the preview.
+- Customizable stars, density, brightness, nebula effects, and color schemes, with support for exporting images at any resolution.
+- Seed-based generation for every part of the image. The seed can be manually set and can be shared online to reproduce identical results.
+- Fully adjustable parameters, allowing each setting to be modified independently and applied instantly to the preview.
+- Supports cubemap-compatible (360°) generation.
 
 # Usage
 - Download the latest release from the [Releases](https://github.com/null138/stellar-forge/releases) section.
@@ -23,10 +24,11 @@ Stellar Forge lets you instantly generate and customize beautiful space-themed v
 - When you are happy with the result, click the “Save” button and choose where to save the image.
 
 # Important
-- To apply a new resolution, change the resolution and click “Generate New Seed”. Otherwise, the change will not be applied. After that, you don’t need to click “Generate New Seed” again — you can simply change settings and they will be applied automatically for that resolution.
-- This is a beta version, so there may be bugs that were not discovered during testing. 
-- It may also feel slow on lower-performance devices. Everything except the cloud is generated on the CPU. The cloud rendering is done on the GPU (Perlin noise is very slow otherwise)
-
+- Wait for the image to finish generating after clicking buttons or enabling Cubemap mode.
+- To apply a new resolution, change the resolution and click “Generate New Seed” or “Apply”. Otherwise, the change will not be applied. After that, you don’t need to click them again — you can simply change settings and they will be applied automatically for that resolution.
+- For cubemap (360°) generation, make sure the image resolution is a 2:1 aspect ratio, or the edges will not be seamless.
+- This is a beta version, so there may be bugs that were not discovered during testing.
+- It may also feel slow on lower-performance devices.
 
 #
 
@@ -39,9 +41,10 @@ Stellar Forge позволяет мгновенно создавать и нас
 <img src="preview.png" alt="preview" width="1100">
 
 # Возможности
-- Настраиваемые звёзды, плотность, яркость, эффекты туманностей и цветовые схемы с поддержкой экспорта изображений в любых разрешениях.
-- Генерация на основе seed для каждой части изображения. Каждый результат случайный.
-- Полностью регулируемые параметры, позволяющие менять каждую настройку отдельно и мгновенно применять её в предпросмотре.
+- Настраиваемые звёзды, плотность, яркость, эффекты туманностей и цветовые схемы, с поддержкой экспорта изображений в любом разрешении.
+- Генерация на основе seed для каждой части изображения. Seed можно задавать вручную и делиться им онлайн для получения идентичных результатов.
+- Полностью настраиваемые параметры — каждую настройку можно изменять отдельно и мгновенно применять к предпросмотру.
+- Поддержка генерации cubemap (360°).
 
 # Использование
 - Скачайте последнюю версию из раздела [Releases](https://github.com/null138/stellar-forge/releases).
@@ -53,6 +56,8 @@ Stellar Forge позволяет мгновенно создавать и нас
 - Когда результат вас устраивает, нажмите “Save” и выберите место сохранения изображения.
 
 # Важно
-- Чтобы применить новое разрешение, измените его и нажмите “Generate New Seed”. Иначе изменение не применится. После этого повторно нажимать “Generate New Seed” не нужно — можно просто менять настройки, и они будут применяться автоматически для выбранного разрешения.
-- Это бета-версия, поэтому возможны ошибки, не выявленные во время тестирования.
-- На слабых устройствах может работать медленно. Всё, кроме облаков, генерируется на CPU. Рендер облаков выполняется на GPU (Perlin noise слишком медленный на CPU).
+- Дождитесь завершения генерации изображения после нажатия кнопок или включения режима Cubemap.
+- Чтобы применить новое разрешение, измените его и нажмите «Generate New Seed» или «Apply». В противном случае изменения не будут применены. После этого не нужно нажимать их снова — можно просто менять настройки, и они будут автоматически применяться для этого разрешения.
+- Для генерации cubemap (360°) убедитесь, что изображение имеет соотношение сторон 2:1, иначе швы не будут бесшовными.
+- Это бета-версия, поэтому возможны ошибки, не обнаруженные во время тестирования.
+- На устройствах с низкой производительностью работа может казаться медленной.
