@@ -7,8 +7,12 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 import ctypes
 
+# a way of optimizing the generation
 PREVIEW_W = 1280
 PREVIEW_H = 720
+
+SCG_WIDTH = 1600
+SCG_HEIGHT = 850
 
 def blend_color_dodge(bottom: np.ndarray, top: np.ndarray) -> np.ndarray:
 	if top.ndim == 2:
@@ -160,7 +164,7 @@ def _perlin3d_array(sx, sy, sz, scale, octaves, seed):
 				octaves, seed)
 	return out
 
-# early version template. decided to leave it.
+# early version template. decided to leave it. looks good.
 palettes = {
 	"warm":	 [(255, 80,	 30),  (255, 160, 20),	(200, 40,  80),	 (255, 200, 80)],
 	"cool":	 [(30,	80,	 255), (20,	 200, 255), (80,  30,  200), (40,  180, 220)],
@@ -223,13 +227,10 @@ def make_L3(width, height, rng):
 def _sample_canvas_sphere(canvas: np.ndarray, sx, sy, sz) -> np.ndarray:
 	cvs_h, cvs_w = canvas.shape[:2]
 	is_color = canvas.ndim == 3
-
 	lon = (np.arctan2(sy, sx) % (2.0 * np.pi)).astype(np.float32)
 	lat = np.arccos(np.clip(sz, -1.0, 1.0)).astype(np.float32)
-
 	cx = lon / (2.0 * np.pi) * cvs_w
 	cy = lat / np.pi		  * cvs_h
-
 	x0 = np.floor(cx).astype(np.int32) % cvs_w
 	x1 = (x0 + 1) % cvs_w
 	y0 = np.clip(np.floor(cy).astype(np.int32), 0, cvs_h - 1)
@@ -246,23 +247,47 @@ def _sample_canvas_sphere(canvas: np.ndarray, sx, sy, sz) -> np.ndarray:
 		   canvas[y1, x1] *		 xf	 *		yf).astype(np.float32)
 	return out
 
-
-def _make_star_layer_sphere(width: int, height: int, rng,density: float, blur_radius: float, gamma: float, sphere_coords) -> np.ndarray:
+# this thing gave me a headache. layers 0 and 1 (stars) were getting stretched, and since its 2d noise, it looked like lines or hieroglyphs. its not the best solution, but its viable
+def _make_star_layer_sphere(width: int, height: int, rng, density: float, blur_radius: float, gamma: float, sphere_coords) -> np.ndarray:
 	sx, sy, sz = sphere_coords
-	cvs_w = 800
-	cvs_h = 450
-	tile_w = cvs_w * 3
-	noise = np.abs(rng.normal(0.0, density, (cvs_h, cvs_w))).astype(np.float32)
-	noise = np.clip(noise, 0.0, 1.0)
-	tiled = np.tile(noise, (1, 3))
-	img = Image.fromarray((tiled * 255).astype(np.uint8), "L")
-	img = img.filter(ImageFilter.GaussianBlur(radius=max(blur_radius, 0.4)))
-	blurred_tiled = np.array(img).astype(np.float32) / 255.0
-	canvas = blurred_tiled[:, cvs_w: cvs_w * 2]
-	sampled = _sample_canvas_sphere(canvas, sx, sy, sz)
-	sampled = apply_levels(sampled, in_black=170, gamma=gamma, in_white=255)
-	return np.stack([sampled, sampled, sampled], axis=-1)
+	n_stars = int(density * 80000) + 1000 # i mean it works for now? please dont force me to rework this again
+	cos_lat = rng.uniform(-1.0, 1.0, n_stars).astype(np.float32)
+	sin_lat = np.sqrt(np.clip(1.0 - cos_lat**2, 0.0, 1.0)).astype(np.float32)
+	lon		= rng.uniform(0.0, 2.0 * np.pi, n_stars).astype(np.float32)
+	star_px = (lon / (2.0 * np.pi) * width).astype(np.float32)
+	star_py = (np.arccos(np.clip(cos_lat, -1.0, 1.0)) / np.pi * height).astype(np.float32)
+	raw = np.abs(rng.normal(0.0, density, n_stars)).astype(np.float32)
+	raw = np.clip(raw, 0.0, 1.0)
+	canvas = np.zeros((height, width), dtype=np.float32)
+	ix = np.round(star_px).astype(np.int32) % width
+	iy = np.clip(np.round(star_py).astype(np.int32), 0, height - 1)
+	np.add.at(canvas, (iy, ix), raw)
+	lat = np.linspace(0.0, np.pi, height, endpoint=True)
+	sin_lat_row = np.sin(lat).astype(np.float32)
+	blurred = np.zeros_like(canvas)
+	base_sigma = max(blur_radius, 0.4)
+	lat = np.linspace(0.0, np.pi, height, endpoint=True)
+	sin_lat_row = np.sin(lat).astype(np.float32)
 
+	for row_i in range(height):
+		sin_val = float(sin_lat_row[row_i])
+		h_sigma = base_sigma * sin_val + 0.3
+		v_sigma = base_sigma * sin_val + 0.3
+		pad = int(v_sigma * 3) + 1
+		y0	= max(0, row_i - pad)
+		y1	= min(height, row_i + pad + 1)
+		strip = canvas[y0:y1, :]
+		strip_img = Image.fromarray((np.clip(strip, 0, 1) * 255).astype(np.uint8), "L")
+		strip_blurred = np.array(
+			strip_img.filter(ImageFilter.GaussianBlur(radius=(h_sigma, v_sigma)))
+		).astype(np.float32) / 255.0
+		local_row = row_i - y0
+		blurred[row_i, :] = strip_blurred[local_row, :]
+
+	blurred = blurred / (blurred.max() + 1e-6)
+	blurred = np.power(blurred, 0.4)
+	blurred = apply_levels(blurred, in_black=100, gamma=gamma, in_white=255)
+	return np.stack([blurred, blurred, blurred], axis=-1)
 
 def make_L0_sphere(width: int, height: int, rng, density=0.5, scale=0.5, sphere_coords=None) -> np.ndarray:
 	if sphere_coords is None:
@@ -308,7 +333,6 @@ def make_L2_sphere(width: int, height: int, rng, custom_colors=None, sphere_coor
 	result *= 0.30
 	return result
 
-
 def make_L3_sphere(width: int, height: int, rng, sphere_coords=None) -> np.ndarray:
 	if sphere_coords is None:
 		sphere_coords = _equirect_to_sphere(width, height)
@@ -324,7 +348,6 @@ def make_L3_sphere(width: int, height: int, rng, sphere_coords=None) -> np.ndarr
 	base = np.abs(np.abs(0.5 - p1) - p2)
 	base = (base - base.min()) / (base.max() - base.min() + 1e-6)
 	return base.astype(np.float32)
-
 
 class SpaceGUI:
 	def _make_slider(self, parent, label, var, frm, to, on_change):
@@ -428,7 +451,7 @@ class SpaceGUI:
 		style = ctypes.windll.user32.GetWindowLongW(hwnd, GWL_STYLE)
 		style = style & ~0x00C00000 & ~0x00040000
 		ctypes.windll.user32.SetWindowLongW(hwnd, GWL_STYLE, style)
-		ctypes.windll.user32.SetWindowPos(hwnd, None, 0, 0, 0, 0, 0x0020 | 0x0001 | 0x0002 | 0x0040)
+		ctypes.windll.user32.SetWindowPos(hwnd, None, 0, 0, 0, 0, 0x0020 | 0x0001 | 0x0002 | 0x0040) # flags are just in case. i dont think it is necessary since im using borderless but anything to fix the laggy window dragging...
 
 	def apply_seed(self):
 		try:
@@ -444,14 +467,14 @@ class SpaceGUI:
 
 	def __init__(self, root):
 		self.root = root
-		self.root.title("Stellar Forge v1.2 by Madness (null138)")
+		self.root.title("Stellar Forge v1.3 by Madness (null138)")
 		self.border_width = 5
 		self._render_pending = False
 		self._render_after = None
 		self._rebuild_l0_after = None
 		self._rebuild_l1_after = None
 		self._busy = False
-		self.bg_canvas = tk.Canvas(root, highlightthickness=0, bd=0, width=1600, height=850)
+		self.bg_canvas = tk.Canvas(root, highlightthickness=0, bd=0, width=SCG_WIDTH, height=SCG_HEIGHT)
 		self.bg_canvas.pack(fill="both", expand=True)
 		self.main_ui = tk.Frame(self.bg_canvas, bg="#1e1f22")
 		self.main_ui.place(relx=0, rely=0, relwidth=1, relheight=1,
@@ -503,7 +526,7 @@ class SpaceGUI:
 		titlebar = tk.Frame(self.main_ui, bg="#2a2d31", height=28)
 		titlebar.pack(side="top", fill="x")
 		titlebar.pack_propagate(False)
-		tk.Label(titlebar, text="Stellar Forge v1.2 by Madness (null138)",
+		tk.Label(titlebar, text="Stellar Forge v1.3 by Madness (null138)",
 				 bg="#2a2d31", fg="#00e5ff", font=("Segoe UI", 9)).pack(side="left", padx=6)
 		tk.Button(titlebar, text="✕", bg="#2a2d31", fg="#e6e6e6", bd=0,
 				  activebackground="#e81123", activeforeground="white", width=3,
