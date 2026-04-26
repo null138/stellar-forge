@@ -503,7 +503,7 @@ class SpaceGUI:
 		titlebar = tk.Frame(self.main_ui, bg="#2a2d31", height=28)
 		titlebar.pack(side="top", fill="x")
 		titlebar.pack_propagate(False)
-		tk.Label(titlebar, text="Stellar Forge by Madness (null138)",
+		tk.Label(titlebar, text="Stellar Forge v1.2 by Madness (null138)",
 				 bg="#2a2d31", fg="#00e5ff", font=("Segoe UI", 9)).pack(side="left", padx=6)
 		tk.Button(titlebar, text="✕", bg="#2a2d31", fg="#e6e6e6", bd=0,
 				  activebackground="#e81123", activeforeground="white", width=3,
