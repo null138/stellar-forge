@@ -25,6 +25,7 @@ Stellar Forge lets you instantly generate and customize beautiful space-themed v
 
 # Important
 - Wait for the image to finish generating after clicking buttons or enabling Cubemap mode.
+- Preview is set to a fixed resolution, so at higher generation resolutions small details like stars may not be visible. However, they will appear correctly in the saved output.
 - For better performance, generate images at lower resolutions first (e.g., 1920×1080). Then, before saving, set your desired resolution and click the Apply button. This will make adjusting settings smoother.
 - To apply a new resolution, change the resolution and click “Generate New Seed” or “Apply”. Otherwise, the change will not be applied. After that, you don’t need to click them again — you can simply change settings and they will be applied automatically for that resolution.
 - For cubemap (360°) generation, make sure the image resolution is a 2:1 aspect ratio, or the edges will not be seamless.
@@ -58,6 +59,7 @@ Stellar Forge позволяет мгновенно создавать и нас
 
 # Важно
 - Дождитесь завершения генерации изображения после нажатия кнопок или включения режима Cubemap.
+- Предпросмотр выполнен в фиксированном разрешении, поэтому при более высоком разрешении генерации мелкие детали, такие как звёзды, могут быть не видны. Однако в сохранённом изображении они будут отображаться корректно.
 - Для лучшей производительности сначала генерируйте изображения в более низком разрешении (например, 1920×1080). Затем перед сохранением установите нужное разрешение и нажмите кнопку «Apply». Это сделает настройку параметров более плавной.
 - Чтобы применить новое разрешение, измените его и нажмите «Generate New Seed» или «Apply». В противном случае изменения не будут применены. После этого не нужно нажимать их снова — можно просто менять настройки, и они будут автоматически применяться для этого разрешения.
 - Для генерации cubemap (360°) убедитесь, что изображение имеет соотношение сторон 2:1, иначе швы не будут бесшовными.
